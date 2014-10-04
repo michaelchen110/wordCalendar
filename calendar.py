@@ -1,6 +1,7 @@
 # wordGod_0, wordGod_R, wordGod_K_5, verbalAdvantages_1~10
 import time
 import numpy
+import re
 
 header = '\documentclass[landscape,a4paper]{article}\n' + '\usepackage{calendar}\n' + '\usepackage[landscape,margin=0.5in]{geometry}\n'+'\\begin{document}\n'+'\pagestyle{empty}\n'+'\\noindent\n'+'\StartingDayNumber=1\n'
 
@@ -10,10 +11,9 @@ Month = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August
 m31 = [1, 3, 5, 7, 8, 10, 12]
 m30 = [4, 6, 9, 11]		
 def monthDays(month):
-
-	if month in m31:
+	if int(month) in m31:
 		return 31
-	elif month in m30:
+	elif int(month) in m30:
 		return 30
 	else:
 		return 28
@@ -57,7 +57,7 @@ for line in open('wordList.txt').readlines():
 	tmp = line.split('\n')[0].split('*')
 	for i in range(int(tmp[1])):
 		calendar.append([])
-		wordList.append('$'+tmp[0]+'_{'+str(i+1)+'}$')
+		wordList.append(tmp[0]+'_{'+str(i+1)+'}')
 for i in range(29):
 	calendar.append([])
 
@@ -65,9 +65,9 @@ for i in range(29):
 # 	Arrange Task By Ebbinghaus Forgetting Curve
 # ----------------------------------------------------------------------------------------
 for i in range(len(wordList)):
-	calendar[i].insert(0, wordList[i])
+	calendar[i].insert(0, '$' + wordList[i] + '$')
 	for j in range(len(forgettingCurve)):
-		calendar[i+sum(forgettingCurve[:j+1])].append('*'+wordList[i])
+		calendar[i+sum(forgettingCurve[:j+1])].append('$-'+wordList[i] + '$')
 
 for i in range(len(calendar)):
 	for j in range(4):
@@ -92,7 +92,7 @@ file = open("./calendar.tex", "w")
 file.write(header);
 
 count = 0
-monthSpan = int(calendar[-1][0]) - int(calendar[0][0]) + year*3
+monthSpan = int(calendar[-1][0]) - int(calendar[0][0]) + 1 + year*3
 for month in range(monthSpan):
 	file.write('\\begin{center}\n')
 	file.write('\\textsc{\LARGE ' + Month[(int(calendar[0][0])+month-1)%12] + '}\\\\\n')
@@ -106,12 +106,13 @@ for month in range(monthSpan):
 	file.write('\setcounter{calendardate}{1}\n')
 
 	for i in range(monthDays(calendar[count][0])):
-		if (len(calendar[count]) > 4):
+		if len(calendar[count]) > 4 and not re.search('-', calendar[count][4]):
 			file.write('\day{' + calendar[count][4] + '}{')
+			for chapter in calendar[count][5:]:
+				file.write(chapter + '\\\\')
 		else:
 			file.write('\day{}{')
-		if count < len(calendar):
-			for j in range(1, len(calendar[count])-4):
+			for j in range(len(calendar[count])-4):
 				file.write(calendar[count][j+4] + '\\\\')
 		file.write('}\n')
 		count += 1
