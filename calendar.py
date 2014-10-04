@@ -1,9 +1,8 @@
-# wordGod_0, wordGod_R, wordGod_K_5, verbalAdvantages_1~10
 import time
 import numpy
 import re
 
-header = '\documentclass[landscape,a4paper]{article}\n' + '\usepackage{calendar}\n' + '\usepackage[landscape,margin=0.5in]{geometry}\n'+'\\begin{document}\n'+'\pagestyle{empty}\n'+'\\noindent\n'+'\StartingDayNumber=1\n'
+header = '\documentclass[landscape,a4paper]{article}\n' + '\usepackage{calendar}\n' + '\usepackage[landscape,margin=0.5in]{geometry}\n' + '\usepackage{color}\n' + '\\begin{document}\n'+'\pagestyle{empty}\n'+'\\noindent\n'+'\StartingDayNumber=1\n'
 
 year = 0
 Month = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
@@ -29,22 +28,14 @@ def dateFromToday(days):
 	while True:
 		if m > 12:
 			m = 1
-		if m in m31 and d > 31:
+		if d > monthDays(m):
 			m += 1
-			d -= 31
-		elif m in m30 and d > 30:
-			m += 1
-			d -= 30
-		elif m == 2 and d > 28:
-			m += 1
-			d -= 28
+			d -= monthDays(m)
 		else:
 			break
 	if m == 1 and d == 1:
 		year += 1
 	return str(m)+'/'+str(d)+'/'+str(weekday)+'/'+str(int(today[3])+year/4)
-	# return '9/25'
-
 
 wordList = []
 calendar = []
@@ -81,7 +72,7 @@ while int(calendar[-1][1]) < monthDays(int(calendar[-1][0])):
 
 # print len(calendar)
 
-print numpy.matrix(calendar)
+# print numpy.matrix(calendar)
 
 # ----------------------------------------------------------------------------------------
 # 	Make a Latex Calendar
@@ -107,7 +98,7 @@ for month in range(monthSpan):
 
 	for i in range(monthDays(calendar[count][0])):
 		if len(calendar[count]) > 4 and not re.search('-', calendar[count][4]):
-			file.write('\day{' + calendar[count][4] + '}{')
+			file.write('\day{\color{blue}' + calendar[count][4] + '}{')
 			for chapter in calendar[count][5:]:
 				file.write(chapter + '\\\\')
 		else:
@@ -120,5 +111,4 @@ for month in range(monthSpan):
 	file.write('\\finishCalendar\n')
 	file.write('\end{calendar} \clearpage \n')
 file.write('\end{document}\n')
-
 file.close()
