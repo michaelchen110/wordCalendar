@@ -1,3 +1,5 @@
-verbalAdvantages*10
-wordGodK*5
-newGRE*35
+# format: book*units*each
+Verbal*10*2
+God(0)*2
+God(R)*2
+God(K)*5

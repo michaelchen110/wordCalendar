@@ -1,4 +1,4 @@
-*.aux
-*.log
-*.fdb_latexmk
-*.synctex.gz
+/*
+!/wordlist.txt
+!/calendar.py
+!/calendar.sh

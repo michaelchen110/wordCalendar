@@ -2,14 +2,16 @@ import time
 import numpy
 import re
 
-header = '\documentclass[landscape,a4paper]{article}\n' + '\usepackage{calendar}\n' + '\usepackage[landscape,margin=0.5in]{geometry}\n' + '\usepackage{color}\n' + '\\begin{document}\n'+'\pagestyle{empty}\n'+'\\noindent\n'+'\StartingDayNumber=1\n'
-
-year = 0
+header = '\documentclass[landscape,a4paper]{article}\n' + '\usepackage{calendar}\n' + '\usepackage[landscape,margin=0.5in]{geometry}\n' + '\usepackage{color}\n' + '%\usepackage{fontspec}\n' + '%\setmainfont{BiauKai}\n' + '\\begin{document}\n'+'\pagestyle{empty}\n'+'\\noindent\n'+'\StartingDayNumber=1\n'
 Month = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+year = 0
+wordList = []
+calendar = []
+forgettingCurve = [0, 1, 2, 4, 7, 15]
 
-m31 = [1, 3, 5, 7, 8, 10, 12]
-m30 = [4, 6, 9, 11]		
 def monthDays(month):
+	m31 = [1, 3, 5, 7, 8, 10, 12]
+	m30 = [4, 6, 9, 11]	
 	if int(month) in m31:
 		return 31
 	elif int(month) in m30:
@@ -18,11 +20,12 @@ def monthDays(month):
 		return 28
 def dateFromToday(days):
 	global year
+	global today
+	# print today
 	weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'] 
-	today = time.strftime('%m/%d/%A/%Y').split('/')
 	m = int(today[0])
 	d = int(today[1]) + int(days)
-	weekday = (weekdays.index(today[2])+days-1)%7
+	weekday = (weekdays.index(today[2])+days)%7
 	# m = 9
 	# d = 25 + int(days)
 	while True:
@@ -37,19 +40,32 @@ def dateFromToday(days):
 		year += 1
 	return str(m)+'/'+str(d)+'/'+str(weekday)+'/'+str(int(today[3])+year/4)
 
-wordList = []
-calendar = []
-forgettingCurve = [0, 1, 2, 4, 7, 15]
+# ----------------------------------------------------------------------------------------
+# 	USER INTERFACE
+# ----------------------------------------------------------------------------------------
+print 'Starting date u wanna start:(1 today (2 one date'
+if raw_input() == '1':	
+	today = time.strftime('%m/%d/%A/%Y').split('/')
+else:
+	print 'Enter the date (mm/dd/xxxxxday/yyyy):'
+	today = raw_input().split('/')
+
 
 # ----------------------------------------------------------------------------------------
 # 	PARSING MEMORY FILE
 # ----------------------------------------------------------------------------------------
 for line in open('wordList.txt').readlines():
 	tmp = line.split('\n')[0].split('*')
+	if '#' in tmp[0]:
+		continue
 	for i in range(int(tmp[1])):
 		calendar.append([])
-		wordList.append(tmp[0]+'_{'+str(i+1)+'}')
-for i in range(29):
+		if len(tmp) == 3:
+			for j in range(int(tmp[2])):
+				wordList.append(tmp[0]+'_{'+str(i+1)+'.'+str(j+1)+'}')
+		else:
+			wordList.append(tmp[0]+'_{'+str(i+1)+'}')
+for i in range(len(wordList)+forgettingCurve[-1]):
 	calendar.append([])
 
 # ----------------------------------------------------------------------------------------
@@ -62,7 +78,7 @@ for i in range(len(wordList)):
 
 for i in range(len(calendar)):
 	for j in range(4):
-		calendar[i].insert(j, dateFromToday(i+1).split('/')[j])	
+		calendar[i].insert(j, dateFromToday(i).split('/')[j])	
 	# print calendar[i]
 
 while int(calendar[0][1]) != 1:
@@ -97,8 +113,9 @@ for month in range(monthSpan):
 	file.write('\setcounter{calendardate}{1}\n')
 
 	for i in range(monthDays(calendar[count][0])):
+		# print count, len(calendar), monthDays(calendar[count][0])
 		if len(calendar[count]) > 4 and not re.search('-', calendar[count][4]):
-			file.write('\day{\color{blue}' + calendar[count][4] + '}{')
+			file.write('\day{\color{black}' + calendar[count][4] + '}{')
 			for chapter in calendar[count][5:]:
 				file.write(chapter + '\\\\')
 		else:
@@ -109,6 +126,8 @@ for month in range(monthSpan):
 		count += 1
 
 	file.write('\\finishCalendar\n')
+	# if the the line over the box
+	# file.write('\\BlankDay\n')  
 	file.write('\end{calendar} \clearpage \n')
 file.write('\end{document}\n')
 file.close()
