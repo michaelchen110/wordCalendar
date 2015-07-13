@@ -5,3 +5,5 @@
 200sentences*20
 Magoosh*14
 Verbal*10
+51
+China*30*2
