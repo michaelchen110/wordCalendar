@@ -6,18 +6,45 @@ import sys, traceback
 header = '\documentclass[landscape,a4paper]{article}\n' + '\usepackage{calendar}\n' + '\usepackage[landscape,margin=0.5in]{geometry}\n' + '\usepackage{color}\n' + '%\usepackage{fontspec}\n' + '%\setmainfont{BiauKai}\n' + '\\begin{document}\n'+'\pagestyle{empty}\n'+'\\noindent\n'+'\StartingDayNumber=1\n'
 calendar = []
 Month = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
-forgettingCurve = [0, 1, 2, 4, 7, 15]
+forgettingCurve = [0, 1, 3, 7, 15, 30]
+
+# ----------------------------------------------------------------------------------------
+# 	17 DAYS KO VOCABULARIES
+# ----------------------------------------------------------------------------------------
+# 5min 10words --> 0.5min re 10words
+# .
+# .
+# .
+# .
+# 30min 60words --> 3min re 60words
+# .
+# .
+# .
+# 60min 120words --> 5min re 120words
+#
+#
+# night --> re 120 words
+#
+#
+#
+# 3 cannot remember --> quizlet
+
+
 
 # ----------------------------------------------------------------------------------------
 # 	GENERATE MEMORIZING ORDER
 # ----------------------------------------------------------------------------------------
 start = 0
+offset = 0
 for line in open('wordList.txt').readlines():
 	tmp = line.split('\n')[0].split('*')
 	if '#' in tmp[0]: #comment
 		continue
 	elif len(tmp) == 1: #start point
-		start = int(tmp[0])
+		if len(calendar) == 0:
+			offset = int(tmp[0])
+		else:
+			start = int(tmp[0])
 	else:
 		for chapter in range(1, int(tmp[1])+1):
 			units = 1
@@ -41,11 +68,13 @@ for line in open('wordList.txt').readlines():
 # 	Make a Latex Calendar
 # ----------------------------------------------------------------------------------------
 
-today = datetime.date.today()
-endDate = today + datetime.timedelta(days=len(calendar))
-startMonth = Month.index(str(today.strftime('%B')))
+initDate = datetime.date.today() + datetime.timedelta(days=offset)
+endDate = initDate + datetime.timedelta(days=len(calendar)-1)
+startMonth = Month.index(str(initDate.strftime('%B')))
 endMonth = Month.index(str(endDate.strftime('%B')))
-monthSpan = 1 + endMonth - startMonth + 12*(int(endDate.strftime('%Y')) - int(today.strftime('%Y')))
+monthSpan = 1 + endMonth - startMonth + 12*(int(endDate.strftime('%Y')) - int(initDate.strftime('%Y')))
+
+print initDate
 
 file = open("./calendar.tex", "w")
 file.write(header);
@@ -54,20 +83,19 @@ calIndex = 0
 for month in range(startMonth, startMonth+monthSpan):
 	file.write('\\begin{center}\n')
 	file.write('\\textsc{\LARGE ' + Month[month%12] + '}\\\\\n')
-	file.write('\\textsc{\large ' + str((today + datetime.timedelta(days=calIndex)).strftime('%Y')) + '}\n')
+	file.write('\\textsc{\large ' + str((initDate + datetime.timedelta(days=calIndex)).strftime('%Y')) + '}\n')
 	file.write('\end{center}\n')
 	file.write('\\begin{calendar}{\hsize}\n')
 
-	
-	for i in range(int((today + datetime.timedelta(days=1-int(today.strftime('%d')))).strftime('%w'))):
+	for i in range(int((initDate + datetime.timedelta(days=1-int(initDate.strftime('%d')))).strftime('%w'))):
 		file.write('\BlankDay\n')
 	
 	file.write('\setcounter{calendardate}{1}\n')
 
 	if calIndex == 0:
-		for i in range(int(today.strftime('%d'))-1):
+		for i in range(int(initDate.strftime('%d'))-1):
 			file.write('\day{}{}\n')
-	while Month.index((today + datetime.timedelta(days=calIndex)).strftime('%B')) == month%12:
+	while Month.index((initDate + datetime.timedelta(days=calIndex)).strftime('%B')) == month%12:
 		file.write('\day{}{')
 		if calIndex < len(calendar):
 			for i in range(len(calendar[calIndex])):
