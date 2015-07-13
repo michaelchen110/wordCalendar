@@ -44,7 +44,7 @@ for line in open('wordList.txt').readlines():
 		if len(calendar) == 0:
 			offset = int(tmp[0])
 		else:
-			start = int(tmp[0])
+			start = int(tmp[0]) - offset
 	else:
 		for chapter in range(1, int(tmp[1])+1):
 			units = 1
@@ -63,7 +63,6 @@ for line in open('wordList.txt').readlines():
 				times = times + 1
 
 # print numpy.matrix(calendar)
-
 # ----------------------------------------------------------------------------------------
 # 	Make a Latex Calendar
 # ----------------------------------------------------------------------------------------
@@ -73,8 +72,6 @@ endDate = initDate + datetime.timedelta(days=len(calendar)-1)
 startMonth = Month.index(str(initDate.strftime('%B')))
 endMonth = Month.index(str(endDate.strftime('%B')))
 monthSpan = 1 + endMonth - startMonth + 12*(int(endDate.strftime('%Y')) - int(initDate.strftime('%Y')))
-
-print initDate
 
 file = open("./calendar.tex", "w")
 file.write(header);

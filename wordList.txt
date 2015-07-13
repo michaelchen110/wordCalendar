@@ -2,8 +2,8 @@
 # 	FORMAT: book*units(*each)
 #			starting day			
 # ----------------------------------------------------------------------------------------
-wordgod*15
+-5
 China*30
+0
 Magoosh*14
-Verbal*10
-# 200sentences*20
+wordgod*15
