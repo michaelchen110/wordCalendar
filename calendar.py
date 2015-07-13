@@ -1,133 +1,77 @@
-import time
+import datetime
 import numpy
 import re
+import sys, traceback
 
 header = '\documentclass[landscape,a4paper]{article}\n' + '\usepackage{calendar}\n' + '\usepackage[landscape,margin=0.5in]{geometry}\n' + '\usepackage{color}\n' + '%\usepackage{fontspec}\n' + '%\setmainfont{BiauKai}\n' + '\\begin{document}\n'+'\pagestyle{empty}\n'+'\\noindent\n'+'\StartingDayNumber=1\n'
-Month = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
-year = 0
-wordList = []
 calendar = []
+Month = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 forgettingCurve = [0, 1, 2, 4, 7, 15]
 
-def monthDays(month):
-	m31 = [1, 3, 5, 7, 8, 10, 12]
-	m30 = [4, 6, 9, 11]	
-	if int(month) in m31:
-		return 31
-	elif int(month) in m30:
-		return 30
-	else:
-		return 28
-def dateFromToday(days):
-	global year
-	global today
-	# print today
-	weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'] 
-	m = int(today[0])
-	d = int(today[1]) + int(days)
-	weekday = (weekdays.index(today[2])+days)%7
-	# m = 9
-	# d = 25 + int(days)
-	while True:
-		if m > 12:
-			m = 1
-		if d > monthDays(m):
-			m += 1
-			d -= monthDays(m)
-		else:
-			break
-	if m == 1 and d == 1:
-		year += 1
-	return str(m)+'/'+str(d)+'/'+str(weekday)+'/'+str(int(today[3])+year/4)
-
+# today = time.strftime('%m/%d/%A/%Y').split('/')
+# print today
 # ----------------------------------------------------------------------------------------
-# 	USER INTERFACE
+# 	GENERATE MEMORIZING ORDER
 # ----------------------------------------------------------------------------------------
-print 'Starting date u wanna start:(1 today (2 one date'
-if raw_input() == '1':	
-	today = time.strftime('%m/%d/%A/%Y').split('/')
-else:
-	print 'Enter the date (mm/dd/xxxxxday/yyyy):'
-	today = raw_input().split('/')
-
-
-# ----------------------------------------------------------------------------------------
-# 	PARSING MEMORY FILE
-# ----------------------------------------------------------------------------------------
+start = 0
 for line in open('wordList.txt').readlines():
 	tmp = line.split('\n')[0].split('*')
-	if '#' in tmp[0]:
+	if '#' in tmp[0]: #comment
 		continue
-	for i in range(int(tmp[1])):
-		calendar.append([])
-		if len(tmp) == 3:
-			for j in range(int(tmp[2])):
-				wordList.append(tmp[0]+'_{'+str(i+1)+'.'+str(j+1)+'}')
-		else:
-			wordList.append(tmp[0]+'_{'+str(i+1)+'}')
-for i in range(len(wordList)+forgettingCurve[-1]):
-	calendar.append([])
-
-# ----------------------------------------------------------------------------------------
-# 	Arrange Task By Ebbinghaus Forgetting Curve
-# ----------------------------------------------------------------------------------------
-for i in range(len(wordList)):
-	calendar[i].insert(0, '$' + wordList[i] + '$')
-	for j in range(len(forgettingCurve)):
-		calendar[i+sum(forgettingCurve[:j+1])].append('$-'+wordList[i] + '$')
-
-for i in range(len(calendar)):
-	for j in range(4):
-		calendar[i].insert(j, dateFromToday(i).split('/')[j])	
-	# print calendar[i]
-
-while int(calendar[0][1]) != 1:
-	calendar.insert(0, [calendar[0][0], str(int(calendar[0][1])-1), str((int(calendar[0][2])+6)%7), int(calendar[0][3])])
-while int(calendar[-1][1]) < monthDays(int(calendar[-1][0])):
-	calendar.append([calendar[-1][0], str(int(calendar[-1][1])+1), calendar[-1][2], calendar[-1][3]])
-
-# print len(calendar)
-
+	elif len(tmp) == 1: #start point
+		start = int(tmp[0])
+	else:
+		for chapter in range(1, int(tmp[1])+1):
+			while len(calendar) < int(tmp[1])+int(forgettingCurve[-1])+start:
+				calendar.append([])
+			times = 1
+			for repeat in forgettingCurve:
+				if len(tmp) == 3:
+					for unit in range(1, int(tmp[2])+1):
+						calendar[int(repeat)+start+chapter-1+unit-1].append(tmp[0]+str(chapter)+'.'+str(unit)+'_{'+str(times)+'}')
+				else:
+					calendar[int(repeat)+start+chapter-1].append(tmp[0]+str(chapter)+'_{'+str(times)+'}')
+				times = times + 1
 # print numpy.matrix(calendar)
-
 # ----------------------------------------------------------------------------------------
 # 	Make a Latex Calendar
 # ----------------------------------------------------------------------------------------
 
+today = datetime.date.today()
+endDate = today + datetime.timedelta(days=len(calendar))
+startMonth = Month.index(str(today.strftime('%B')))
+endMonth = Month.index(str(endDate.strftime('%B')))
+monthSpan = 1 + endMonth - startMonth + 12*(int(endDate.strftime('%Y')) - int(today.strftime('%Y')))
 
 file = open("./calendar.tex", "w")
 file.write(header);
 
-count = 0
-monthSpan = int(calendar[-1][0]) - int(calendar[0][0]) + 1 + year*3
-for month in range(monthSpan):
+calIndex = 0
+for month in range(startMonth, startMonth+monthSpan):
 	file.write('\\begin{center}\n')
-	file.write('\\textsc{\LARGE ' + Month[(int(calendar[0][0])+month-1)%12] + '}\\\\\n')
-	file.write('\\textsc{\large ' + str(calendar[count][3]) + '}\n')
+	file.write('\\textsc{\LARGE ' + Month[month%12] + '}\\\\\n')
+	file.write('\\textsc{\large ' + str((today + datetime.timedelta(days=calIndex)).strftime('%Y')) + '}\n')
 	file.write('\end{center}\n')
 	file.write('\\begin{calendar}{\hsize}\n')
 
-	for i in range(int(calendar[count][2])):
+	for i in range(int((today + datetime.timedelta(days=calIndex)).strftime('%w'))):
 		file.write('\BlankDay\n')
 	
 	file.write('\setcounter{calendardate}{1}\n')
 
-	for i in range(monthDays(calendar[count][0])):
-		# print count, len(calendar), monthDays(calendar[count][0])
-		if len(calendar[count]) > 4 and not re.search('-', calendar[count][4]):
-			file.write('\day{\color{black}' + calendar[count][4] + '}{')
-			for chapter in calendar[count][5:]:
-				file.write(chapter + '\\\\')
-		else:
-			file.write('\day{}{')
-			for j in range(len(calendar[count])-4):
-				file.write(calendar[count][j+4] + '\\\\')
+	while Month.index((today + datetime.timedelta(days=calIndex)).strftime('%B')) == month%12:
+		print today + datetime.timedelta(days=calIndex)
+		file.write('\day{}{')
+		if calIndex < len(calendar):
+			for i in range(len(calendar[calIndex])):
+				file.write('$'+calendar[calIndex][i]+'$' + '\\\\')
 		file.write('}\n')
-		count += 1
+		calIndex += 1
 
 	file.write('\\finishCalendar\n')
 	# if the the line over the box
-	# file.write('\\BlankDay\n')  
+	if calIndex < len(calendar):
+		file.write('\\BlankDay\n')  
 	file.write('\end{calendar} \clearpage \n')
 file.write('\end{document}\n')
 file.close()
