@@ -1,9 +1,11 @@
 # ----------------------------------------------------------------------------------------
-# 	FORMAT: book*units(*each)
+# 	FORMAT: book*chapters(/how many for one day)(*units of one chapter)
 #			starting day			
 # ----------------------------------------------------------------------------------------
--5
-China*30
-0
-Magoosh*14
-wordgod*15
+-2
+Basic*7
+wordgod*30
+-1
+China*31/2
+5
+Advanced*7

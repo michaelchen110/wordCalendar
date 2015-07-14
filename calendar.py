@@ -46,7 +46,11 @@ for line in open('wordList.txt').readlines():
 		else:
 			start = int(tmp[0]) - offset
 	else:
-		for chapter in range(1, int(tmp[1])+1):
+		divide = 1
+		if '/' in tmp[1]:
+			divide = int(tmp[1].split('/')[1])
+			tmp[1] = tmp[1].split('/')[0]
+		for chapter in range(1, int(tmp[1])/divide+1):
 			units = 1
 			if len(tmp) > 2:
 				units = int(tmp[2])
@@ -57,11 +61,21 @@ for line in open('wordList.txt').readlines():
 			for repeat in forgettingCurve:
 				if len(tmp) == 3:
 					for unit in range(1, int(tmp[2])+1):
-						calendar[int(repeat)+start+(chapter-1)*units+unit-1].append(tmp[0]+str(chapter)+'.'+str(unit)+'_{'+str(times)+'}')
+						calendar[int(repeat)+start+(chapter-1)*units+unit-1].append(tmp[0]+'$'+str(chapter)+'.'+str(unit)+'_{'+str(times)+'}$')
+				elif divide > 1:
+					calendar[int(repeat)+start+chapter-1].append(tmp[0]+str((chapter-1)*divide+1)+'-'+str(chapter*divide)+'$_{'+str(times)+'}$')
 				else:
-					calendar[int(repeat)+start+chapter-1].append(tmp[0]+str(chapter)+'_{'+str(times)+'}')
+					calendar[int(repeat)+start+chapter-1].append(tmp[0]+'$'+str(chapter)+'_{'+str(times)+'}$')
 				times = times + 1
+		if divide > 1:
+			for repeat in forgettingCurve:
+				if int(tmp[1])%divide > 1:
+					calendar[int(repeat)+start+chapter-1].append(tmp[0]+str(int(tmp[1])-int(tmp[1])%divide)+'-'+tmp[1]+'$_{'+str(times)+'}$')
+				else:
+					calendar[int(repeat)+start+chapter-1].append(tmp[0]+tmp[1]+'$_{'+str(times)+'}$')
 
+for i in range(len(calendar)):
+	calendar[i] = list(reversed(calendar[i]))
 # print numpy.matrix(calendar)
 # ----------------------------------------------------------------------------------------
 # 	Make a Latex Calendar
@@ -96,7 +110,7 @@ for month in range(startMonth, startMonth+monthSpan):
 		file.write('\day{}{')
 		if calIndex < len(calendar):
 			for i in range(len(calendar[calIndex])):
-				file.write('$'+calendar[calIndex][i]+'$' + '\\\\')
+				file.write(calendar[calIndex][i] + '\\\\')
 		file.write('}\n')
 		calIndex += 1
 
