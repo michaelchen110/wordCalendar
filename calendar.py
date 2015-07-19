@@ -68,11 +68,11 @@ for line in open('wordList.txt').readlines():
 				elif divide > 1:
 					# if times == 1:
 						# calendar[int(repeat)+start+chapter-1].append(tmp[0]+str((chapter-1)*divide+1)+'-'+str(chapter*divide))
-					if chapter == int(tmp[1])/divide + remain:
-						if int(tmp[1])%divide > 1:
-							calendar[int(repeat)+start+chapter-1].append(tmp[0]+str(int(tmp[1])-int(tmp[1])%divide+1)+'-'+tmp[1]+'$_{'+str(times)+'}$')
-						else:
+					if chapter == int(tmp[1])/divide + 1:
+						if int(tmp[1])%divide == 1:
 							calendar[int(repeat)+start+chapter-1].append(tmp[0]+tmp[1]+'$_{'+str(times)+'}$')
+						else:
+							calendar[int(repeat)+start+chapter-1].append(tmp[0]+str(int(tmp[1])-int(tmp[1])%divide+1)+'-'+tmp[1]+'$_{'+str(times)+'}$')
 					else:
 						calendar[int(repeat)+start+chapter-1].append(tmp[0]+str((chapter-1)*divide+1)+'-'+str(chapter*divide)+'$_{'+str(times)+'}$')
 				else:

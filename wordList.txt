@@ -7,9 +7,12 @@ Basic*7
 Wordgod*30
 -5
 China*12/2
-1
-11Chapters*11
 -2
 Sentence*132/10
 1
+ADJ*5
 Advanced*7
+6
+NOUN*2
+8
+VERB*4
