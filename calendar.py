@@ -128,7 +128,8 @@ for month in range(startMonth, startMonth+monthSpan):
 	file.write('\\finishCalendar\n')
 	# if the the line over the box
 	# if calIndex < len(calendar):
-		# file.write('\\BlankDay\n')  
+	if calIndex <= 31:
+		file.write('\\BlankDay\n')  
 	file.write('\end{calendar} \clearpage \n')
 file.write('\end{document}\n')
 file.close()
