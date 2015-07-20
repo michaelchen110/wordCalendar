@@ -100,7 +100,8 @@ monthSpan = 1 + endMonth - startMonth + 12*(int(endDate.strftime('%Y')) - int(in
 
 file = open("./calendar.tex", "w")
 file.write(header);
-calIndex = 0
+# calIndex = 0
+calIndex = 1-int(initDate.strftime('%d'))
 for month in range(startMonth, startMonth+monthSpan):
 	file.write('\\begin{center}\n')
 	file.write('\\textsc{\LARGE ' + Month[month%12] + '}\\\\\n')
@@ -108,14 +109,14 @@ for month in range(startMonth, startMonth+monthSpan):
 	file.write('\end{center}\n')
 	file.write('\\begin{calendar}{\hsize}\n')
 
-	for i in range(int((initDate + datetime.timedelta(days=1-int(initDate.strftime('%d')))).strftime('%w'))):
+	for i in range(int((initDate + datetime.timedelta(days=calIndex)).strftime('%w'))):
 		file.write('\BlankDay\n')
 	
 	file.write('\setcounter{calendardate}{1}\n')
 
-	if calIndex == 0:
-		for i in range(int(initDate.strftime('%d'))-1):
-			file.write('\day{}{}\n')
+	while calIndex < 0:
+		file.write('\day{}{}\n')
+		calIndex += 1 
 	while Month.index((initDate + datetime.timedelta(days=calIndex)).strftime('%B')) == month%12:
 		file.write('\day{}{')
 		if calIndex < len(calendar):
@@ -126,8 +127,8 @@ for month in range(startMonth, startMonth+monthSpan):
 
 	file.write('\\finishCalendar\n')
 	# if the the line over the box
-	if calIndex < len(calendar):
-		file.write('\\BlankDay\n')  
+	# if calIndex < len(calendar):
+		# file.write('\\BlankDay\n')  
 	file.write('\end{calendar} \clearpage \n')
 file.write('\end{document}\n')
 file.close()
