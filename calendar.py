@@ -3,7 +3,7 @@ import numpy
 import re
 import sys, traceback
 
-header = '\documentclass[landscape,a4paper]{article}\n' + '\usepackage{calendar}\n' + '\usepackage[landscape,margin=0.5in]{geometry}\n' + '\usepackage{color}\n' + '%\usepackage{fontspec}\n' + '%\setmainfont{BiauKai}\n' + '\\begin{document}\n'+'\pagestyle{empty}\n'+'\\noindent\n'+'\StartingDayNumber=1\n'
+header = '\documentclass[landscape,a4paper]{article}\n' + '\usepackage{calendar}\n' + '\usepackage[landscape,margin=0.5in]{geometry}\n' + '\geometry{'+'a4paper,'+'total={210mm,297mm},'+'left=20mm,'+'right=20mm,'+'top=5mm,'+'bottom=0mm,'+'}' + '\usepackage{color}\n' + '%\usepackage{fontspec}\n' + '%\setmainfont{BiauKai}\n' + '\\begin{document}\n'+'\pagestyle{empty}\n'+'\\noindent\n'+'\StartingDayNumber=1\n'
 calendar = []
 Month = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 forgettingCurve = [0, 1, 3, 7, 15, 30]

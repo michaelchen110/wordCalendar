@@ -2,17 +2,24 @@
 # 	FORMAT: book*chapters(/how many for one day)(*units of one chapter)
 #			starting day			
 # ----------------------------------------------------------------------------------------
--7
-Basic*7
+-22
+#Basic*7
 Wordgod*30
--6
-China*12/2
--3
-Sentence*132/10
-0
+-21
+#China*12/2
+-18
+#Sentence*132/10
+-15
 ADJ*5
-Advanced*7
-5
+#Advanced*7
+-13
+#Commom*6
+-10
 NOUN*2
-7
+-8
 VERB*4
+-4
+Absolute*1
+-2
+JJ*8         
+#sfd
